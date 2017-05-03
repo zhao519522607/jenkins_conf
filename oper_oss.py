@@ -7,7 +7,7 @@ import optparse
 from email.mime.text import MIMEText
 
 cmd="find /data1/jenkins_dir/ -type f > /data1/python/jenkins_list"
-mailto_list = ["zhaoyingbin@haoqiao.cn"]
+mailto_list = [""]
 mail_host = ""
 mail_user = ""
 mail_pass = ""
