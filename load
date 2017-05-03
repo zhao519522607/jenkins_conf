@@ -1,0 +1,12 @@
+#! /bin/bash
+Load() {
+	name=$1
+	path="/data1/jenkins_home/.jenkins/workspace/shell"
+	module="$path/modules/$name"
+	if [ -f $module ];then
+		. "$module"
+	else
+		echo "Error: File is not found $module"
+		exit 1
+	fi
+}
