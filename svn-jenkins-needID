@@ -1,4 +1,7 @@
 user build variables
+#echo $BUILD_USER
+#echo $BUILD_USER_FIRST_NAME
+#echo $BUILD_USER_EMAIL
 
 if [ -f svn_before_version ];then
 	before_version=$(cat svn_before_version)
