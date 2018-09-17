@@ -1,0 +1,24 @@
+#! /bin/bash
+
+upfile() {
+	f="../package/$1.tgz"
+	user=$2
+	ip=$3
+	dir=$4
+	scp -i ../sshkeys/$user"_rsa" $f $user@$ip:$dir
+}
+
+upload_name() {
+     f=$1
+     user=$2
+     ip=$3
+     dir=$4
+     scp -i ../sshkeys/$user"_rsa" $f $user@$ip:$dir
+}
+
+cmd() {
+	user=$1
+        ip=$2
+	c_name=$3
+	ssh -i ../sshkeys/$user"_rsa" $user@$ip "$c_name"
+}
