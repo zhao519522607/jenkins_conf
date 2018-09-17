@@ -1,0 +1,54 @@
+#! /bin/bash
+
+SVN_CHECK() {
+	if [ -f svn_before_version ];then
+		before_version=$(cat svn_before_version)
+		echo ${SVN_REVISION} > svn_before_version
+		ID_TXT=$(svn log -r $before_version:${SVN_REVISION} ${SVN_URL} |grep "需求ID") 
+		echo $ID_TXT |grep -o "需求ID:[ ]*[0-9]\{4,\}" |grep -o "[0-9]\{4,\}" > Demand_ID
+	else
+		ID_TXT=$(svn log -r ${SVN_REVISION} ${SVN_URL} |grep "需求ID")
+		echo $ID_TXT |grep -o "需求ID:[ ]*[0-9]\{4,\}" |grep -o "[0-9]\{4,\}" > Demand_ID
+		echo ${SVN_REVISION} > svn_before_version
+		echo "因为第一次执行发版,无法对比之前的版本,请再发版一次."
+	fi
+	if [ -s Demand_ID ];then
+		ID_NUM=$(cat Demand_ID |wc -l)
+		if [ $ID_NUM -eq 1 ];then
+			ARGS=$(cat Demand_ID)
+			RESULT=$(curl -s "aaa/pm/service/check_ss_status?pm_ids=$ARGS&release_email=$BUILD_USER_EMAIL")
+			if [ $RESULT -eq 0 ];then
+				echo "有审核未通过的需求ID，终止更新操作"
+				echo $before_version > svn_before_version
+				exit 10
+			elif [ $RESULT -eq 1 ];then
+				echo "需求ID都是审核通过的，可以更新"
+			fi
+		elif [ $ID_NUM -gt 1 ];then
+			DEL_ID_TXT=$(svn log -r $before_version ${SVN_URL} |grep "需求ID")
+			if [ -n "$DEL_ID_TXT" ];then
+				DEL_NUM=$(echo $DEL_ID_TXT |grep -o "需求ID:[ ]*[0-9]\{4,\}" |grep -o "[0-9]\{4,\}" |wc -l)
+				sed -i "1,$DEL_NUM"d Demand_ID
+			else
+				echo "本次更新的需求ID和上次发版的版本完全一致,有借壳上线的嫌疑,终止上线"
+				exit 12
+			fi
+			ARGS=$(cat Demand_ID |tr '\n' '|' |awk '{sub(/.$/,"")}1')
+			RESULT=$(curl -s "aaa/pm/service/check_online_status?pm_ids=$ARGS&release_email=$BUILD_USER_EMAIL")
+			if [ $RESULT -eq 0 ];then
+				echo "有审核未通过的需求ID，终止更新操作"
+				echo $before_version > svn_before_version
+				exit 10
+			elif [ $RESULT -eq 1 ];then
+				echo "需求ID都是审核通过的，可以更新"
+			fi
+		fi    
+	else
+		echo "没有需求ID，禁止更新."
+		exit 11
+	fi
+}
+
+SVN_MAIL() {
+	curl -s "ssss/pm/service/update_online_status?pm_ids=$ARGS&release_email=$BUILD_USER_EMAIL"
+}
