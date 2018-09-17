@@ -16,6 +16,7 @@ update() {
         else
                 ln -s /data/web/$PROJECT/$name /data/www/$LN_name
         fi
+	sudo /usr/bin/kill -USR2 $(cat /usr/local/php56/var/run/php-fpm.pid)
 }
 
 rollback() {
@@ -26,7 +27,7 @@ rollback() {
         else
                 ln -s /data/web/$PROJECT/$dir_ver /data/www/$LN_name
         fi
-
+	sudo /usr/bin/kill -USR2 $(cat /usr/local/php56/var/run/php-fpm.pid)
 }
 
 case $1 in
@@ -38,3 +39,6 @@ case $1 in
                 rollback
                 ;;
 esac
+
+user ALL=NOPASSWD:  /usr/bin/kill
+#Defaults    requiretty  禁用
