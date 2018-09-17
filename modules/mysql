@@ -1,0 +1,15 @@
+#! /bin/bash
+
+MY_CMD="/usr/bin/mysql -haaa  -uuse -pps"
+
+UPDATE_RECORD() {
+	NAME=$1
+	$MY_CMD -e "insert into 库名.表 (\`project_name\`) values('$NAME');"
+}
+
+CREATE TABLE `jenkins_record` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `project_name` varchar(50) DEFAULT NULL COMMENT '项目名称',
+  `uptime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COMMENT='jenkins发布统计';
