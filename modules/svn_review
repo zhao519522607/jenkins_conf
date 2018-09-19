@@ -29,11 +29,12 @@ SVN_CHECK() {
 			if [ -n "$DEL_ID_TXT" ];then
 				DEL_NUM=$(echo $DEL_ID_TXT |grep -o "需求ID:[ ]*[0-9]\{4,\}" |grep -o "[0-9]\{4,\}" |wc -l)
 				sed -i "1,$DEL_NUM"d Demand_ID
-			else
-				echo "本次更新的需求ID和上次发版的版本完全一致,有借壳上线的嫌疑,终止上线"
-				exit 12
 			fi
 			ARGS=$(cat Demand_ID |tr '\n' '|' |awk '{sub(/.$/,"")}1')
+			if [ -z "$ARGS" ];then
+                		echo "本次更新的需求ID和上次成功发版的需求ID完全一致,有借壳上线的嫌疑,终止上线"
+                		exit 12
+            		fi
 			RESULT=$(curl -s "aaa/pm/service/check_online_status?pm_ids=$ARGS&release_email=$BUILD_USER_EMAIL")
 			if [ $RESULT -eq 0 ];then
 				echo "有审核未通过的需求ID，终止更新操作"
