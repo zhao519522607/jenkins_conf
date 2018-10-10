@@ -32,8 +32,14 @@ SVN_CHECK() {
 			fi
 			ARGS=$(cat Demand_ID |tr '\n' '|' |awk '{sub(/.$/,"")}1')
 			if [ -z "$ARGS" ];then
-                		echo "本次更新的需求ID和上次成功发版的需求ID完全一致,有借壳上线的嫌疑,终止上线"
-                		exit 12
+                		UP_LIST=$(svn diff --summarize -r $before_version:${SVN_REVISION} ${SVN_URL})
+				if [ -n "$UP_LIST" ];then
+					echo "本次更新的需求ID和上次成功发版的需求ID完全一致,有借壳上线的嫌疑,终止上线"
+					exit 12
+				else
+					echo $ID_TXT |grep -o "需求ID:[ ]*[0-9]\{4,\}" |grep -o "[0-9]\{4,\}" > Demand_ID
+					ARGS=$(cat Demand_ID |tr '\n' '|' |awk '{sub(/.$/,"")}1')
+				fi
             		fi
 			RESULT=$(curl -s "aaa/pm/service/check_online_status?pm_ids=$ARGS&release_email=$BUILD_USER_EMAIL")
 			if [ $RESULT -eq 0 ];then
