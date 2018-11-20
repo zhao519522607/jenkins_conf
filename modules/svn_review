@@ -25,7 +25,9 @@ SVN_CHECK() {
 				echo "需求ID都是审核通过的，可以更新"
 			fi
 		elif [ $ID_NUM -gt 1 ];then
+			set +e
 			DEL_ID_TXT=$(svn log -r $before_version ${SVN_URL} |grep "需求ID")
+			set -e
 			if [ -n "$DEL_ID_TXT" ];then
 				DEL_NUM=$(echo $DEL_ID_TXT |grep -o "需求ID:[ ]*[0-9]\{4,\}" |grep -o "[0-9]\{4,\}" |wc -l)
 				sed -i "1,$DEL_NUM"d Demand_ID
